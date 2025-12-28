@@ -35,6 +35,21 @@ export interface ServiceUsageDemand {
   marketDemand: number;
 }
 
+export interface CategoryJudgment {
+  category: string;
+  verdict: 'Aggressive Expansion' | 'Strategic Maintain' | 'Optimization Required' | 'Phased Pivot';
+  rationale: string;
+  priorityScore: number;
+}
+
+export interface InvestmentItem {
+  subCategory: string;
+  serviceType: string;
+  allocationAmount: number;
+  rationale: string;
+  expectedAnnualYield: string;
+}
+
 export interface SimulationResult {
   judgment: string;
   forecastedRevenueImpact: string;
@@ -45,6 +60,8 @@ export interface SimulationResult {
   confidenceScore: number;
   dataIntegrity: number;
   recommendationStability: 'High' | 'Moderate' | 'Volatile';
+  categoryJudgments: CategoryJudgment[];
+  investmentPlan: InvestmentItem[];
 }
 
 export interface WhatIfRecommendation {

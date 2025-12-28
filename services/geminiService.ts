@@ -27,27 +27,24 @@ export class GeminiService {
     const systemDate = new Date().toISOString().split('T')[0];
 
     const prompt = `
-      As a senior hotel business strategist, analyze the provided historical sales data for non-hospitality services specifically for the location: ${location}.
+      As a senior hotel business strategist, analyze the historical sales data for non-hospitality services for ${location}.
       
-      Historical Data Summary: ${JSON.stringify(dataSummary)}
-      Current System Date: ${systemDate}
-      
-      Strategic Context:
-      - Proposed Investment Budget: ₹${budgetINR.toLocaleString()}
-      - Stakeholder Targets: Target Monthly Profit contribution of $${targetMonthlyProfit} and Target ROI of ${targetROI}%
+      Historical Data: ${JSON.stringify(dataSummary)}
+      Investment Budget: ₹${budgetINR.toLocaleString()}
+      Target Profit: $${targetMonthlyProfit} / month
+      Target ROI: ${targetROI}%
       
       Tasks:
-      1. Summarize historical performance relative to the last 9 months (Mar-Nov 2025).
-      2. Research REAL-TIME market trends in ${location}.
-      3. Strategic Investment Analysis with confidence metrics.
-      4. Seasonal Analysis: Provide a mapping of services to 'Actual Usage' (normalized 0-100 from data) vs 'Market Demand' (normalized 0-100 based on city trends).
-      5. "What-If" Analysis: Recommend 3-5 high-impact actions to achieve the profit target.
+      1. Provide a "Verdict" for each service category (Spa, Dining, MICE, Retail, Wellness, Parking). Verdicts: 'Aggressive Expansion', 'Strategic Maintain', 'Optimization Required', 'Phased Pivot'.
+      2. Distribute the EXACT investment budget of ₹${budgetINR.toLocaleString()} across specific sub-categories and services.
+      3. For each investment item, provide sub-category details, the parent service type, the allocation amount (sum must equal budget), rationale, and expected yield.
+      4. Simulate a 9-month ROI curve.
 
-      Structure your response according to the provided schema.
+      Be highly specific to ${location} market conditions.
     `;
 
     const response = await this.ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-3-pro-preview',
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -102,6 +99,31 @@ export class GeminiService {
                 confidenceScore: { type: Type.NUMBER },
                 dataIntegrity: { type: Type.NUMBER },
                 recommendationStability: { type: Type.STRING },
+                categoryJudgments: {
+                  type: Type.ARRAY,
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      category: { type: Type.STRING },
+                      verdict: { type: Type.STRING },
+                      rationale: { type: Type.STRING },
+                      priorityScore: { type: Type.NUMBER }
+                    }
+                  }
+                },
+                investmentPlan: {
+                  type: Type.ARRAY,
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      subCategory: { type: Type.STRING },
+                      serviceType: { type: Type.STRING },
+                      allocationAmount: { type: Type.NUMBER },
+                      rationale: { type: Type.STRING },
+                      expectedAnnualYield: { type: Type.STRING }
+                    }
+                  }
+                },
                 breakEvenData: {
                   type: Type.ARRAY,
                   items: {

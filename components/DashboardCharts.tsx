@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
-  PieChart, Pie, Cell, LineChart, Line, ComposedChart 
+  PieChart, Pie, Cell, LineChart, Line, ComposedChart, Label
 } from 'recharts';
 import { SaleTransaction, BusinessAnalysis } from '../types';
 import { COLORS } from '../constants';
@@ -101,9 +101,19 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
         <div className="bg-white p-8 border border-slate-100 shadow-2xl rounded-[2.5rem] min-w-[320px]">
           <p className="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-[0.3em]">{label} Performance Drilldown</p>
           <div className="space-y-6">
-            <div className="flex justify-between items-center border-b border-slate-50 pb-5">
-              <span className="text-xs font-black text-slate-500 uppercase tracking-tighter">Net Operating Profit</span>
-              <span className="text-xl font-black text-emerald-600">{formatCurrency(pData.profit)}</span>
+            <div className="border-b border-slate-50 pb-5 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black text-slate-400 uppercase">Gross Revenue</span>
+                <span className="text-sm font-bold text-indigo-600">{formatCurrency(pData.revenue)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black text-slate-400 uppercase">Total Cost</span>
+                <span className="text-sm font-bold text-rose-500">{formatCurrency(pData.cost)}</span>
+              </div>
+              <div className="flex justify-between items-center pt-2 border-t border-slate-50">
+                <span className="text-xs font-black text-slate-500 uppercase">Net Operating Profit</span>
+                <span className="text-xl font-black text-emerald-600">{formatCurrency(pData.profit)}</span>
+              </div>
             </div>
             
             <div className="space-y-4">
@@ -246,10 +256,12 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
           </h3>
           <div className="flex-1">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={serviceStats} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <BarChart data={serviceStats} margin={{ top: 10, right: 10, left: 20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" fontSize={11} axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontWeight: 800 }} />
-                <YAxis tickFormatter={formatYAxis} fontSize={10} axisLine={false} tickLine={false} tick={{ fill: '#94a3b8' }} />
+                <YAxis tickFormatter={formatYAxis} fontSize={10} axisLine={false} tickLine={false} tick={{ fill: '#94a3b8' }}>
+                   <Label value={`Value (${currencySymbol})`} angle={-90} position="insideLeft" style={{ textAnchor: 'middle', fill: '#94a3b8', fontSize: '10px', fontWeight: 'bold' }} offset={10} />
+                </YAxis>
                 <Tooltip 
                   cursor={{ fill: '#f8fafc' }}
                   formatter={(val: number) => [formatCurrency(val), 'Volume']}
@@ -317,10 +329,12 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
           </div>
           <div className="flex-1">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={timelineData} margin={{ top: 10, right: 40, left: 20, bottom: 10 }}>
+              <LineChart data={timelineData} margin={{ top: 10, right: 40, left: 30, bottom: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="label" fontSize={12} axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontWeight: 900 }} />
-                <YAxis tickFormatter={formatYAxis} fontSize={10} axisLine={false} tickLine={false} tick={{ fill: '#94a3b8' }} />
+                <YAxis tickFormatter={formatYAxis} fontSize={10} axisLine={false} tickLine={false} tick={{ fill: '#94a3b8' }}>
+                   <Label value={`Value (${currencySymbol})`} angle={-90} position="insideLeft" style={{ textAnchor: 'middle', fill: '#94a3b8', fontSize: '10px', fontWeight: 'bold' }} offset={5} />
+                </YAxis>
                 <Tooltip content={<CustomLineTooltip />} />
                 <Line 
                   type="monotone" 
