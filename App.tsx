@@ -181,22 +181,24 @@ const App: React.FC = () => {
           <header className="h-24 bg-white/80 backdrop-blur-xl border-b border-slate-100 flex items-center justify-between px-10 sticky top-0 z-20">
             <div className="flex items-center space-x-10">
               <div>
-                <h1 className="text-2xl font-black text-slate-900 tracking-tighter leading-none">Market Intelligence</h1>
+                <h1 className="text-2xl font-black text-slate-900 tracking-tighter leading-none">Portfolio Alpha Analytics</h1>
                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-3 flex items-center">
-                  <i className="fas fa-calendar-alt text-indigo-500 mr-2"></i>
-                  Data Cycle: 2025 Series
+                  <i className="fas fa-microchip text-indigo-500 mr-2"></i>
+                  Strategic Performance Dashboard
                 </p>
               </div>
               <div className="h-10 w-px bg-slate-100 hidden md:block"></div>
               <div className="relative hidden md:block group w-72">
-                <i className="fas fa-map-location-dot absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors"></i>
-                <input 
-                  type="text" 
-                  value={tempLocation}
-                  onChange={(e) => setTempLocation(e.target.value)}
-                  placeholder="Target Market Location..."
-                  className="bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-12 pr-6 w-full text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all shadow-inner"
-                />
+                <div className="bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner flex items-center">
+                  <i className="fas fa-location-crosshairs ml-4 text-indigo-500"></i>
+                  <input 
+                    type="text" 
+                    value={tempLocation}
+                    onChange={(e) => setTempLocation(e.target.value)}
+                    placeholder="Enter Target Market..."
+                    className="bg-transparent py-2.5 px-4 w-full text-xs font-bold text-slate-700 outline-none focus:bg-white transition-all rounded-xl"
+                  />
+                </div>
               </div>
             </div>
             
@@ -211,13 +213,13 @@ const App: React.FC = () => {
                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3.5 rounded-[1.25rem] text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20 disabled:opacity-50 flex items-center space-x-3"
               >
                 <i className={`fas ${state.isLoading ? 'fa-spinner fa-spin' : 'fa-wand-magic-sparkles'} text-white`}></i>
-                <span>{state.isLoading ? 'Synthesizing...' : 'Run Optimization'}</span>
+                <span>{state.isLoading ? 'Processing...' : 'Run Optimization'}</span>
               </button>
             </div>
           </header>
 
           <div className="flex-1 overflow-y-auto p-10 custom-scrollbar space-y-10">
-            {/* Top Cards with Year-Month Segments */}
+            {/* Top Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               {[ 
                 { label: 'Revenue', total: totals.revenue, month: selectedMonthTotals.revenue, key: 'revenue', icon: 'fa-chart-pie' },
@@ -272,12 +274,18 @@ const App: React.FC = () => {
 
             {state.analysis ? (
               <div className="space-y-12 pb-12">
-                {/* Executive Assessment - Per Service Judgment */}
+                {/* Executive Assessment */}
                 <div className="bg-white p-14 rounded-[4rem] shadow-sm border border-slate-100 relative overflow-hidden group">
-                   <h2 className="text-3xl font-black text-slate-900 mb-10 flex items-center tracking-tighter">
-                      <div className="w-1.5 h-8 bg-indigo-600 mr-6 rounded-full"></div>
-                      Executive Assessment: Category Intelligence
-                    </h2>
+                   <div className="flex items-center justify-between mb-10">
+                     <h2 className="text-3xl font-black text-slate-900 flex items-center tracking-tighter">
+                        <div className="w-1.5 h-8 bg-indigo-600 mr-6 rounded-full"></div>
+                        Executive Assessment: Category Intelligence
+                      </h2>
+                      <div className="flex items-center space-x-2 px-4 py-1.5 bg-indigo-50 border border-indigo-100 rounded-full">
+                         <i className="fas fa-brain text-indigo-500 text-[10px]"></i>
+                         <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest">Market Intelligence Engine Active</span>
+                      </div>
+                   </div>
                     
                     <p className="text-slate-800 text-2xl leading-snug border-l-8 border-indigo-600/10 pl-12 italic font-medium mb-16 py-4">
                       "{state.analysis.simulation?.judgment}"
@@ -309,7 +317,11 @@ const App: React.FC = () => {
                    <div className="flex items-center justify-between mb-16 relative z-10">
                       <div>
                         <h2 className="text-4xl font-black tracking-tighter mb-4">Strategic Investment Ledger</h2>
-                        <p className="text-slate-500 text-sm font-bold uppercase tracking-widest">Targeting ₹{(state.targetMonthlyProfit * USD_TO_INR).toLocaleString()} Monthly Net Gain</p>
+                        <div className="flex items-center space-x-3">
+                           <p className="text-slate-500 text-sm font-bold uppercase tracking-widest">Targeting ₹{(state.targetMonthlyProfit * USD_TO_INR).toLocaleString()} Monthly Net Gain</p>
+                           <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                           <span className="text-[10px] text-indigo-400 font-black uppercase tracking-widest">Optimized Portfolio Growth</span>
+                        </div>
                       </div>
                       <div className="text-right">
                          <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-2">Deployed Capital</div>
@@ -354,54 +366,53 @@ const App: React.FC = () => {
                    </div>
                 </div>
 
-                {/* Simulation Analytics Grid */}
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
-                  <div className="xl:col-span-2 bg-white p-14 rounded-[4rem] shadow-sm border border-slate-100 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 opacity-40 group-hover:scale-125 transition-transform duration-1000"></div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                      {[
-                        { label: 'Projected Portfolio ROI', value: `${state.analysis.simulation?.roiPercentage}%`, sub: 'Annualized Expected Yield', color: 'emerald', icon: 'fa-rocket' },
-                        { label: 'Equity Recovery Gap', value: `${state.analysis.simulation?.breakEvenMonths} Mo`, sub: 'Break-Even Milestone', color: 'indigo', icon: 'fa-calendar-check' },
-                        { label: 'Market Elasticity', value: state.analysis.simulation?.recommendationStability, sub: 'Risk Variance Score', color: 'amber', icon: 'fa-shuffle' }
-                      ].map((box, i) => (
-                        <div key={i} className="bg-slate-50/50 p-10 rounded-[3rem] border border-slate-100 hover:bg-white hover:shadow-2xl transition-all group/card">
-                          <span className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] block mb-4">{box.label}</span>
-                          <div className={`text-4xl font-black text-${box.color}-600 flex items-center mb-3`}>
-                            {box.value}
-                            <i className={`fas ${box.icon} ml-4 text-lg opacity-20 group-hover/card:opacity-100 group-hover/card:scale-110 transition-all`}></i>
+                {/* Evidence & Grounding - Market Intelligence Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                  <div className="lg:col-span-2 space-y-12">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-8">
+                       <h3 className="text-3xl font-black text-slate-900 flex items-center tracking-tighter">
+                        <i className="fas fa-tower-broadcast text-indigo-600 mr-6"></i>
+                        AI Market Intelligence Grounding: {state.location}
+                      </h3>
+                      <div className="flex items-center space-x-2 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100">
+                         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                         <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Live Market Feed</span>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                      {state.analysis.marketTrends.map((trend, i) => (
+                        <div key={i} className="bg-white p-12 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all group relative overflow-hidden">
+                          <div className={`text-[10px] font-black uppercase mb-8 px-5 py-2 rounded-full inline-block tracking-widest ${
+                            trend.impact === 'positive' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 
+                            trend.impact === 'negative' ? 'bg-rose-50 text-rose-700 border border-rose-100' : 'bg-slate-50 text-slate-700 border border-slate-100'
+                          }`}>
+                            <i className={`fas ${trend.impact === 'positive' ? 'fa-arrow-trend-up' : 'fa-triangle-exclamation'} mr-2`}></i>
+                            {trend.impact} momentum
                           </div>
-                          <p className="text-[11px] text-slate-500 font-black uppercase tracking-tight">{box.sub}</p>
+                          <h4 className="font-black text-slate-900 text-2xl mb-5 group-hover:text-indigo-600 transition-colors leading-tight">{trend.title}</h4>
+                          <p className="text-slate-600 text-base leading-relaxed font-medium mb-10">{trend.description}</p>
                         </div>
                       ))}
                     </div>
                   </div>
-                  
-                  <div className="bg-white p-12 rounded-[4rem] shadow-sm border border-slate-100 h-[550px] flex flex-col">
-                    <div className="flex items-center justify-between mb-10">
-                      <div>
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-slate-900">Capital Growth Path</h3>
-                        <p className="text-[10px] text-slate-400 mt-1 font-bold">9-Month Compounding Delta</p>
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={state.analysis.simulation?.breakEvenData || []}>
-                          <defs>
-                            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                          <XAxis dataKey="label" fontSize={10} tick={{fill: '#94a3b8', fontWeight: 800}} axisLine={false} tickLine={false} />
-                          <YAxis fontSize={10} tick={{fill: '#94a3b8'}} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v/1000}k`} />
-                          <Tooltip 
-                            contentStyle={{borderRadius: '24px', border: 'none', boxShadow: '0 25px 50px rgba(0,0,0,0.12)', padding: '20px'}}
-                            formatter={(v: number) => [formatValue(v), 'Cumulative Yield']} 
-                          />
-                          <Area type="monotone" dataKey="cumulativeProfit" stroke="#4f46e5" fill="url(#areaGradient)" strokeWidth={6} animationDuration={2500} />
-                        </AreaChart>
-                      </ResponsiveContainer>
+
+                  <div className="bg-white p-12 rounded-[4rem] shadow-sm border border-slate-100 h-fit sticky top-24">
+                    <h3 className="text-xs font-black mb-12 flex items-center text-slate-900 uppercase tracking-[0.4em] border-b border-slate-50 pb-8">
+                      <i className="fas fa-fingerprint text-indigo-500 mr-5 text-2xl"></i>
+                      Market Verification
+                    </h3>
+                    <div className="space-y-6">
+                      {state.analysis.sources.map((source, i) => (
+                        <a key={i} href={source.uri} target="_blank" rel="noopener noreferrer" className="block p-7 rounded-[2rem] bg-slate-50 hover:bg-white hover:shadow-2xl transition-all border border-transparent hover:border-indigo-100 group">
+                          <div className="flex items-center space-x-6">
+                            <div className="w-12 h-12 bg-white group-hover:bg-slate-950 rounded-2xl text-slate-400 group-hover:text-white transition-all flex items-center justify-center shadow-sm">
+                               <i className="fas fa-link text-sm"></i>
+                            </div>
+                            <span className="text-xs font-black text-slate-700 group-hover:text-slate-950 line-clamp-2 leading-relaxed tracking-tight">{source.title}</span>
+                          </div>
+                        </a>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -414,7 +425,7 @@ const App: React.FC = () => {
                 </div>
                 <h3 className="text-6xl font-black text-slate-900 mb-8 tracking-tighter relative z-10">Initiate Strategy Engine</h3>
                 <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed font-medium mb-16 text-2xl relative z-10">
-                  Aggregate historical operational data with real-time seasonal benchmarks in <span className="text-indigo-600 font-black decoration-indigo-200 underline underline-offset-8">{tempLocation || state.location}</span> to synthesize your 9-month asset roadmap.
+                  Aggregate historical operational data with real-time <span className="text-indigo-600 font-black decoration-indigo-200 underline underline-offset-8">AI Market Intelligence</span> benchmarks in <span className="font-black text-slate-700">{tempLocation || state.location}</span> to synthesize your 9-month asset roadmap.
                 </p>
                 <div className="flex flex-wrap justify-center gap-8 relative z-10">
                    {['Global Market Sync', 'Profit Optimization', 'Risk Modeling', 'Execution Map'].map((tag, i) => (
