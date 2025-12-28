@@ -1,0 +1,7 @@
+{
+  "name": "Hotel Strategic Non-Hospitality Intelligence",
+  "description": "An AI-powered dashboard for hotel stakeholders to analyze non-hospitality service performance, benchmark against real-time market data, and receive strategic investment recommendations.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
