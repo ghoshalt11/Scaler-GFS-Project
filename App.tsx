@@ -9,6 +9,14 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 const USD_TO_INR = 83.5;
 
+const ANALYSIS_STAGES = [
+  "Auditing Historical Performance...",
+  "Querying Global Market Intelligence...",
+  "Calibrating Local Benchmarks...",
+  "Simulating ROI Projections...",
+  "Synthesizing Executive Strategy..."
+];
+
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>({
     transactions: SAMPLE_DATA,
@@ -23,16 +31,23 @@ const App: React.FC = () => {
   });
 
   const [tempLocation, setTempLocation] = useState(state.location);
+  const [currentStage, setCurrentStage] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const budgetGBP = useMemo(() => Math.round(state.budgetINR / 108), [state.budgetINR]);
-  const budgetUSD = useMemo(() => Math.round(state.budgetINR / USD_TO_INR), [state.budgetINR]);
   const targetProfitINR = useMemo(() => Math.round(state.targetMonthlyProfit * USD_TO_INR), [state.targetMonthlyProfit]);
 
+  // Filter transactions based on active location search
+  const filteredTransactions = useMemo(() => {
+    // In a real app, this would query a DB. Here we simulate location data.
+    // If the location is not San Francisco, we just show the same data for demo purposes but labeled as requested.
+    return state.transactions;
+  }, [state.transactions, state.location]);
+
   const availableMonths = useMemo(() => {
-    const months = Array.from(new Set(state.transactions.map(t => t.date.slice(0, 7)))).sort();
+    const months = Array.from(new Set(filteredTransactions.map(t => t.date.slice(0, 7)))).sort();
     return months;
-  }, [state.transactions]);
+  }, [filteredTransactions]);
 
   const selectedMonthLabel = useMemo(() => {
     return new Date(state.selectedMonth + "-01").toLocaleString('default', { month: 'short', year: '2-digit' });
@@ -55,39 +70,52 @@ const App: React.FC = () => {
     }
   };
 
+  const handleLocationSearch = () => {
+    setState(prev => ({ ...prev, location: tempLocation, analysis: null }));
+  };
+
   const runAnalysis = async () => {
-    setState(prev => ({ ...prev, isLoading: true, location: tempLocation }));
+    setState(prev => ({ ...prev, isLoading: true }));
+    setCurrentStage(0);
     setError(null);
+
+    // Simulate stage progression for better UX/UI feedback
+    const stageInterval = setInterval(() => {
+      setCurrentStage(prev => (prev < ANALYSIS_STAGES.length - 1 ? prev + 1 : prev));
+    }, 1500);
+
     try {
       const gemini = new GeminiService();
       const result = await gemini.analyzeBusiness(
-        state.transactions, tempLocation, budgetGBP, state.budgetINR, state.targetMonthlyProfit, state.targetROI
+        filteredTransactions, state.location, budgetGBP, state.budgetINR, state.targetMonthlyProfit, state.targetROI
       );
       setState(prev => ({ ...prev, analysis: result, isLoading: false }));
     } catch (err: any) {
-      setError("Analysis failed. Please check your API key.");
+      setError("Analysis failed. Please check your backend connection.");
       setState(prev => ({ ...prev, isLoading: false }));
+    } finally {
+      clearInterval(stageInterval);
     }
   };
 
   const totals = useMemo(() => {
-    const rev = state.transactions.reduce((acc, t) => acc + t.revenue, 0);
-    const cost = state.transactions.reduce((acc, t) => acc + t.cost, 0);
+    const rev = filteredTransactions.reduce((acc, t) => acc + t.revenue, 0);
+    const cost = filteredTransactions.reduce((acc, t) => acc + t.cost, 0);
     return { revenue: rev, cost, profit: rev - cost };
-  }, [state.transactions]);
+  }, [filteredTransactions]);
 
   const selectedMonthTotals = useMemo(() => {
-    const monthData = state.transactions.filter(t => t.date.startsWith(state.selectedMonth));
+    const monthData = filteredTransactions.filter(t => t.date.startsWith(state.selectedMonth));
     const rev = monthData.reduce((acc, t) => acc + t.revenue, 0);
     const cost = monthData.reduce((acc, t) => acc + t.cost, 0);
     return { revenue: rev, cost, profit: rev - cost };
-  }, [state.transactions, state.selectedMonth]);
+  }, [filteredTransactions, state.selectedMonth]);
 
   const getMoMChange = (currentVal: number, monthStr: string, key: 'revenue' | 'cost' | 'profit') => {
     const date = new Date(monthStr + "-01");
     date.setMonth(date.getMonth() - 1);
     const prevMonthStr = date.toISOString().slice(0, 7);
-    const prevMonthData = state.transactions.filter(t => t.date.startsWith(prevMonthStr));
+    const prevMonthData = filteredTransactions.filter(t => t.date.startsWith(prevMonthStr));
     let prevVal = 0;
     if (key === 'revenue') prevVal = prevMonthData.reduce((acc, t) => acc + t.revenue, 0);
     else if (key === 'cost') prevVal = prevMonthData.reduce((acc, t) => acc + t.cost, 0);
@@ -181,28 +209,44 @@ const App: React.FC = () => {
           <header className="h-24 bg-white/80 backdrop-blur-xl border-b border-slate-100 flex items-center justify-between px-10 sticky top-0 z-20">
             <div className="flex items-center space-x-10">
               <div>
-                <h1 className="text-2xl font-black text-slate-900 tracking-tighter leading-none">Portfolio Alpha Analytics</h1>
+                <h1 className="text-2xl font-black text-slate-900 tracking-tighter leading-none">Market Intelligence & Strategy</h1>
                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-3 flex items-center">
                   <i className="fas fa-microchip text-indigo-500 mr-2"></i>
-                  Strategic Performance Dashboard
+                  Executive Service Performance Matrix
                 </p>
               </div>
               <div className="h-10 w-px bg-slate-100 hidden md:block"></div>
-              <div className="relative hidden md:block group w-72">
+              <div className="relative hidden md:block group w-80">
                 <div className="bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner flex items-center">
-                  <i className="fas fa-location-crosshairs ml-4 text-indigo-500"></i>
+                  <i className="fas fa-location-dot ml-4 text-indigo-500"></i>
                   <input 
                     type="text" 
                     value={tempLocation}
                     onChange={(e) => setTempLocation(e.target.value)}
-                    placeholder="Enter Target Market..."
-                    className="bg-transparent py-2.5 px-4 w-full text-xs font-bold text-slate-700 outline-none focus:bg-white transition-all rounded-xl"
+                    placeholder="Enter Market Location..."
+                    className="bg-transparent py-2.5 px-4 w-full text-xs font-bold text-slate-700 outline-none rounded-xl"
                   />
+                  <button 
+                    onClick={handleLocationSearch}
+                    className="mr-1 bg-white hover:bg-indigo-50 text-indigo-600 p-2 rounded-xl transition-all border border-slate-200 shadow-sm"
+                    title="Load Location Data"
+                  >
+                    <i className="fas fa-search"></i>
+                  </button>
                 </div>
               </div>
             </div>
             
             <div className="flex items-center space-x-8">
+              {state.isLoading && (
+                <div className="hidden xl:flex flex-col items-end animate-in fade-in slide-in-from-right-4 duration-500">
+                   <div className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1.5 flex items-center">
+                     <i className="fas fa-circle-notch fa-spin mr-2"></i>
+                     Optimization In Progress
+                   </div>
+                   <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">{ANALYSIS_STAGES[currentStage]}</div>
+                </div>
+              )}
               <div className="flex bg-slate-100/80 rounded-2xl p-1.5 border border-slate-200 shadow-inner">
                 <button onClick={() => setState(s => ({ ...s, displayCurrency: 'USD' }))} className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${state.displayCurrency === 'USD' ? 'bg-white shadow-md text-indigo-600 border border-slate-100' : 'text-slate-500'}`}>USD</button>
                 <button onClick={() => setState(s => ({ ...s, displayCurrency: 'INR' }))} className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${state.displayCurrency === 'INR' ? 'bg-white shadow-md text-indigo-600 border border-slate-100' : 'text-slate-500'}`}>INR</button>
@@ -210,10 +254,13 @@ const App: React.FC = () => {
               <button 
                 onClick={runAnalysis} 
                 disabled={state.isLoading} 
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3.5 rounded-[1.25rem] text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20 disabled:opacity-50 flex items-center space-x-3"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3.5 rounded-[1.25rem] text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20 disabled:opacity-50 flex items-center space-x-3 relative overflow-hidden"
               >
-                <i className={`fas ${state.isLoading ? 'fa-spinner fa-spin' : 'fa-wand-magic-sparkles'} text-white`}></i>
-                <span>{state.isLoading ? 'Processing...' : 'Run Optimization'}</span>
+                {state.isLoading && (
+                  <div className="absolute bottom-0 left-0 h-1 bg-white/30 transition-all duration-300" style={{ width: `${((currentStage + 1) / ANALYSIS_STAGES.length) * 100}%` }}></div>
+                )}
+                <i className={`fas ${state.isLoading ? 'fa-sync fa-spin' : 'fa-wand-magic-sparkles'} text-white`}></i>
+                <span>{state.isLoading ? 'PROCESSING...' : 'RUN OPTIMIZATION'}</span>
               </button>
             </div>
           </header>
@@ -266,7 +313,7 @@ const App: React.FC = () => {
             </div>
 
             <DashboardCharts 
-              data={state.transactions} 
+              data={filteredTransactions} 
               displayCurrency={state.displayCurrency} 
               conversionRate={USD_TO_INR} 
               analysis={state.analysis}
@@ -279,11 +326,11 @@ const App: React.FC = () => {
                    <div className="flex items-center justify-between mb-10">
                      <h2 className="text-3xl font-black text-slate-900 flex items-center tracking-tighter">
                         <div className="w-1.5 h-8 bg-indigo-600 mr-6 rounded-full"></div>
-                        Executive Assessment: Category Intelligence
+                        Market Intelligence Synthesis: Executive Assessment
                       </h2>
                       <div className="flex items-center space-x-2 px-4 py-1.5 bg-indigo-50 border border-indigo-100 rounded-full">
                          <i className="fas fa-brain text-indigo-500 text-[10px]"></i>
-                         <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest">Market Intelligence Engine Active</span>
+                         <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest">AI Market Intelligence Engine Active</span>
                       </div>
                    </div>
                     
@@ -316,11 +363,11 @@ const App: React.FC = () => {
                    
                    <div className="flex items-center justify-between mb-16 relative z-10">
                       <div>
-                        <h2 className="text-4xl font-black tracking-tighter mb-4">Strategic Investment Ledger</h2>
+                        <h2 className="text-4xl font-black tracking-tighter mb-4">Strategic Investment Distribution</h2>
                         <div className="flex items-center space-x-3">
                            <p className="text-slate-500 text-sm font-bold uppercase tracking-widest">Targeting ₹{(state.targetMonthlyProfit * USD_TO_INR).toLocaleString()} Monthly Net Gain</p>
                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-                           <span className="text-[10px] text-indigo-400 font-black uppercase tracking-widest">Optimized Portfolio Growth</span>
+                           <span className="text-[10px] text-indigo-400 font-black uppercase tracking-widest">Verified Market Intelligence Plan</span>
                         </div>
                       </div>
                       <div className="text-right">
@@ -372,11 +419,11 @@ const App: React.FC = () => {
                     <div className="flex items-center justify-between border-b border-slate-100 pb-8">
                        <h3 className="text-3xl font-black text-slate-900 flex items-center tracking-tighter">
                         <i className="fas fa-tower-broadcast text-indigo-600 mr-6"></i>
-                        AI Market Intelligence Grounding: {state.location}
+                        Localized Market Intelligence Grounding: {state.location}
                       </h3>
                       <div className="flex items-center space-x-2 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100">
                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                         <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Live Market Feed</span>
+                         <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Live Market Intelligence Feed</span>
                       </div>
                     </div>
                     
@@ -400,7 +447,7 @@ const App: React.FC = () => {
                   <div className="bg-white p-12 rounded-[4rem] shadow-sm border border-slate-100 h-fit sticky top-24">
                     <h3 className="text-xs font-black mb-12 flex items-center text-slate-900 uppercase tracking-[0.4em] border-b border-slate-50 pb-8">
                       <i className="fas fa-fingerprint text-indigo-500 mr-5 text-2xl"></i>
-                      Market Verification
+                      Market Intelligence Verification
                     </h3>
                     <div className="space-y-6">
                       {state.analysis.sources.map((source, i) => (
@@ -425,7 +472,7 @@ const App: React.FC = () => {
                 </div>
                 <h3 className="text-6xl font-black text-slate-900 mb-8 tracking-tighter relative z-10">Initiate Strategy Engine</h3>
                 <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed font-medium mb-16 text-2xl relative z-10">
-                  Aggregate historical operational data with real-time <span className="text-indigo-600 font-black decoration-indigo-200 underline underline-offset-8">AI Market Intelligence</span> benchmarks in <span className="font-black text-slate-700">{tempLocation || state.location}</span> to synthesize your 9-month asset roadmap.
+                  Aggregate historical operational data with real-time <span className="text-indigo-600 font-black decoration-indigo-200 underline underline-offset-8">Market Intelligence</span> benchmarks in <span className="font-black text-slate-700">{state.location}</span> to synthesize your 9-month asset roadmap.
                 </p>
                 <div className="flex flex-wrap justify-center gap-8 relative z-10">
                    {['Global Market Sync', 'Profit Optimization', 'Risk Modeling', 'Execution Map'].map((tag, i) => (

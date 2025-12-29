@@ -150,12 +150,12 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
       <div className="bg-white rounded-[3rem] shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-12 border-b border-slate-50 flex items-center justify-between">
           <div>
-            <h3 className="text-3xl font-black text-slate-900 tracking-tighter">Financial Operations Audit</h3>
+            <h3 className="text-3xl font-black text-slate-900 tracking-tighter">Market Intelligence: Financial Audit</h3>
             <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-3">Ledger Segment: 2025 Calendar Year Synthesis</p>
           </div>
           <div className="flex items-center space-x-4 bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">
              <div className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse"></div>
-             <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Active Multi-Modality Feedback</span>
+             <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Active Market Intelligence Feedback</span>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -215,18 +215,18 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
             <div>
               <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.4em] flex items-center">
                 <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full mr-5 shadow-[0_0_15px_rgba(79,70,229,0.6)]"></div>
-                Seasonal Demand vs service delivery
+                Market Intelligence: Seasonal Demand Analysis
               </h3>
               <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-3">Localized Market Opportunity Analysis (2025 Baseline)</p>
             </div>
             <div className="flex space-x-10 mt-6 lg:mt-0">
               <div className="flex items-center space-x-3">
                 <div className="w-4 h-4 rounded-lg bg-slate-200"></div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Market Demand Index</span>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Demand Index</span>
               </div>
               <div className="flex items-center space-x-3">
                 <div className="w-4 h-4 rounded-lg bg-emerald-500"></div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Actual Service Utilization</span>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Actual Utilization</span>
               </div>
             </div>
           </div>
@@ -252,7 +252,7 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
         <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-slate-100 h-[550px] flex flex-col">
           <h3 className="text-xs font-black mb-12 text-slate-900 uppercase tracking-[0.4em] flex items-center">
             <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full mr-5 shadow-[0_0_15px_rgba(79,70,229,0.6)]"></div>
-            Portfolio Revenue Structure
+            Market Intelligence: Revenue Composition
           </h3>
           <div className="flex-1">
             <ResponsiveContainer width="100%" height="100%">
@@ -278,7 +278,7 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
         <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-slate-100 h-[550px] flex flex-col">
           <h3 className="text-xs font-black mb-12 text-slate-900 uppercase tracking-[0.4em] flex items-center">
             <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full mr-5 shadow-[0_0_15px_rgba(79,70,229,0.6)]"></div>
-            Contribution Synthesis
+            Market Intelligence: Contribution Synthesis
           </h3>
           <div className="flex-1">
             <ResponsiveContainer width="100%" height="100%">
@@ -312,7 +312,7 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
             <div>
               <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.4em] flex items-center">
                 <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full mr-5 shadow-[0_0_15px_rgba(79,70,229,0.6)]"></div>
-                9-Month Asset Performance Matrix
+                Market Intelligence: 9-Month Performance Matrix
               </h3>
               <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-3">Hover periods for high/low efficiency diagnostics</p>
             </div>
