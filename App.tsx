@@ -5,7 +5,6 @@ import { SaleTransaction, BusinessAnalysis, AppState } from './types';
 import { SAMPLE_DATA } from './constants';
 import { GeminiService } from './services/geminiService';
 import { DashboardCharts } from './components/DashboardCharts';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const USD_TO_INR = 83.5;
 
@@ -35,12 +34,8 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const budgetGBP = useMemo(() => Math.round(state.budgetINR / 108), [state.budgetINR]);
-  const targetProfitINR = useMemo(() => Math.round(state.targetMonthlyProfit * USD_TO_INR), [state.targetMonthlyProfit]);
 
-  // Filter transactions based on active location search
   const filteredTransactions = useMemo(() => {
-    // In a real app, this would query a DB. Here we simulate location data.
-    // If the location is not San Francisco, we just show the same data for demo purposes but labeled as requested.
     return state.transactions;
   }, [state.transactions, state.location]);
 
@@ -79,7 +74,6 @@ const App: React.FC = () => {
     setCurrentStage(0);
     setError(null);
 
-    // Simulate stage progression for better UX/UI feedback
     const stageInterval = setInterval(() => {
       setCurrentStage(prev => (prev < ANALYSIS_STAGES.length - 1 ? prev + 1 : prev));
     }, 1500);
@@ -91,7 +85,7 @@ const App: React.FC = () => {
       );
       setState(prev => ({ ...prev, analysis: result, isLoading: false }));
     } catch (err: any) {
-      setError("Analysis failed. Please check your backend connection.");
+      setError("Analysis failed. Please check your cloud connection.");
       setState(prev => ({ ...prev, isLoading: false }));
     } finally {
       clearInterval(stageInterval);
@@ -251,17 +245,10 @@ const App: React.FC = () => {
                 <button onClick={() => setState(s => ({ ...s, displayCurrency: 'USD' }))} className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${state.displayCurrency === 'USD' ? 'bg-white shadow-md text-indigo-600 border border-slate-100' : 'text-slate-500'}`}>USD</button>
                 <button onClick={() => setState(s => ({ ...s, displayCurrency: 'INR' }))} className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${state.displayCurrency === 'INR' ? 'bg-white shadow-md text-indigo-600 border border-slate-100' : 'text-slate-500'}`}>INR</button>
               </div>
-              <button 
-                onClick={runAnalysis} 
-                disabled={state.isLoading} 
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3.5 rounded-[1.25rem] text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20 disabled:opacity-50 flex items-center space-x-3 relative overflow-hidden"
-              >
-                {state.isLoading && (
-                  <div className="absolute bottom-0 left-0 h-1 bg-white/30 transition-all duration-300" style={{ width: `${((currentStage + 1) / ANALYSIS_STAGES.length) * 100}%` }}></div>
-                )}
-                <i className={`fas ${state.isLoading ? 'fa-sync fa-spin' : 'fa-wand-magic-sparkles'} text-white`}></i>
-                <span>{state.isLoading ? 'PROCESSING...' : 'RUN OPTIMIZATION'}</span>
-              </button>
+              
+              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
+                <i className="fas fa-user-circle"></i>
+              </div>
             </div>
           </header>
 
@@ -420,7 +407,7 @@ const App: React.FC = () => {
                        <h3 className="text-3xl font-black text-slate-900 flex items-center tracking-tighter">
                         <i className="fas fa-tower-broadcast text-indigo-600 mr-6"></i>
                         Localized Market Intelligence Grounding: {state.location}
-                      </h3>
+                       </h3>
                       <div className="flex items-center space-x-2 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100">
                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
                          <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest">Live Market Intelligence Feed</span>
@@ -465,22 +452,47 @@ const App: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="mt-12 text-center p-32 bg-white rounded-[5rem] border border-slate-100 shadow-2xl relative overflow-hidden group">
+              <div className="mt-12 text-center p-20 md:p-32 bg-white rounded-[5rem] border border-slate-100 shadow-2xl relative overflow-hidden group">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-50/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+                
                 <div className="w-32 h-32 bg-indigo-600 text-white rounded-[3.5rem] flex items-center justify-center mx-auto mb-14 text-5xl shadow-[0_30px_60px_-15px_rgba(79,70,229,0.5)] group-hover:rotate-6 group-hover:scale-110 transition-all duration-700 relative z-10 border-4 border-white/20">
                   <i className="fas fa-diagram-project"></i>
                 </div>
-                <h3 className="text-6xl font-black text-slate-900 mb-8 tracking-tighter relative z-10">Initiate Strategy Engine</h3>
-                <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed font-medium mb-16 text-2xl relative z-10">
+                
+                <h3 className="text-4xl md:text-6xl font-black text-slate-900 mb-8 tracking-tighter relative z-10">Initiate Strategy Engine</h3>
+                
+                <p className="text-slate-500 max-w-3xl mx-auto leading-relaxed font-medium mb-16 text-xl md:text-2xl relative z-10">
                   Aggregate historical operational data with real-time <span className="text-indigo-600 font-black decoration-indigo-200 underline underline-offset-8">Market Intelligence</span> benchmarks in <span className="font-black text-slate-700">{state.location}</span> to synthesize your 9-month asset roadmap.
                 </p>
-                <div className="flex flex-wrap justify-center gap-8 relative z-10">
-                   {['Global Market Sync', 'Profit Optimization', 'Risk Modeling', 'Execution Map'].map((tag, i) => (
-                     <div key={i} className="px-10 py-5 bg-white shadow-xl border border-slate-50 rounded-[1.75rem] text-[12px] font-black text-slate-600 uppercase tracking-[0.3em] flex items-center group-hover:-translate-y-2 transition-transform duration-500">
-                        <i className="fas fa-check-circle mr-4 text-emerald-500"></i> {tag}
-                     </div>
-                   ))}
+
+                <div className="relative z-10 flex flex-col items-center space-y-10">
+                  <button 
+                    onClick={runAnalysis} 
+                    disabled={state.isLoading} 
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-12 py-6 rounded-[2rem] text-sm md:text-base font-black uppercase tracking-[0.2em] transition-all shadow-2xl shadow-indigo-600/40 disabled:opacity-50 flex items-center space-x-6 group/btn active:scale-95 overflow-hidden relative"
+                  >
+                    {state.isLoading && (
+                      <div className="absolute bottom-0 left-0 h-1.5 bg-white/40 transition-all duration-300" style={{ width: `${((currentStage + 1) / ANALYSIS_STAGES.length) * 100}%` }}></div>
+                    )}
+                    <i className={`fas ${state.isLoading ? 'fa-sync fa-spin' : 'fa-wand-magic-sparkles'} text-xl`}></i>
+                    <span>{state.isLoading ? 'PROCESSING DATA...' : 'RUN STRATEGY OPTIMIZATION'}</span>
+                  </button>
+
+                  <div className="flex flex-wrap justify-center gap-6 md:gap-8 opacity-60 group-hover:opacity-100 transition-opacity duration-700">
+                    {['Global Market Sync', 'Profit Optimization', 'Risk Modeling', 'Execution Map'].map((tag, i) => (
+                      <div key={i} className="px-8 py-4 bg-white shadow-lg border border-slate-50 rounded-[1.5rem] text-[10px] md:text-[12px] font-black text-slate-600 uppercase tracking-[0.3em] flex items-center hover:-translate-y-2 transition-transform duration-500">
+                        <i className="fas fa-check-circle mr-3 text-emerald-500"></i> {tag}
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
+                {error && (
+                  <div className="mt-12 p-6 bg-rose-50 text-rose-600 rounded-3xl border border-rose-100 text-sm font-bold flex items-center justify-center space-x-4 animate-bounce">
+                    <i className="fas fa-exclamation-triangle"></i>
+                    <span>{error}</span>
+                  </div>
+                )}
               </div>
             )}
           </div>

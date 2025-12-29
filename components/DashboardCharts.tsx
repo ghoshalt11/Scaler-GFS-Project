@@ -44,14 +44,8 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
   }, [data, scale]);
 
   const timelineData = useMemo(() => {
-    const startYear = 2025;
-    const startMonth = 2; // March (0-indexed)
-    
-    const months: string[] = [];
-    for (let i = 0; i < 9; i++) {
-      const d = new Date(startYear, startMonth + i, 1);
-      months.push(d.toISOString().slice(0, 7)); // YYYY-MM
-    }
+    // Dynamically identify all months present in the data to avoid empty periods like Feb 25
+    const months = Array.from(new Set(data.map(t => t.date.slice(0, 7)))).sort();
 
     return months.map(monthStr => {
       const monthData = data.filter(t => t.date.startsWith(monthStr));
@@ -62,7 +56,7 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
       const dateObj = new Date(monthStr + "-01");
       const label = dateObj.toLocaleString('default', { month: 'short', year: '2-digit' });
 
-      // Identify top and bottom services for this month
+      // Identify performance leaders/laggards
       const servicePerformance: Record<string, number> = {};
       monthData.forEach(t => {
         servicePerformance[t.serviceType] = (servicePerformance[t.serviceType] || 0) + (t.revenue - t.cost) * scale;
@@ -151,7 +145,7 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
         <div className="p-12 border-b border-slate-50 flex items-center justify-between">
           <div>
             <h3 className="text-3xl font-black text-slate-900 tracking-tighter">Market Intelligence: Financial Audit</h3>
-            <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-3">Ledger Segment: 2025 Calendar Year Synthesis</p>
+            <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.4em] mt-3">Ledger Segment: Portfolio Operations Synthesis</p>
           </div>
           <div className="flex items-center space-x-4 bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">
              <div className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse"></div>
@@ -171,7 +165,7 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
             </thead>
             <tbody className="divide-y divide-slate-50">
               {timelineData.map((row, i) => {
-                const yieldPct = ((row.profit / row.revenue) * 100).toFixed(1);
+                const yieldPct = row.revenue > 0 ? ((row.profit / row.revenue) * 100).toFixed(1) : "0";
                 return (
                   <tr key={i} className="hover:bg-slate-50/50 transition-all group">
                     <td className="px-12 py-8">
@@ -204,49 +198,6 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
           </table>
         </div>
       </div>
-
-      {/* Seasonal Usage vs Demand Visual */}
-      {analysis?.usageVsDemand && (
-        <div className="bg-white p-14 rounded-[4rem] shadow-sm border border-slate-100 h-[550px] relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-10 opacity-5">
-             <i className="fas fa-umbrella-beach text-[200px] -rotate-12"></i>
-          </div>
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-12 relative z-10">
-            <div>
-              <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.4em] flex items-center">
-                <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full mr-5 shadow-[0_0_15px_rgba(79,70,229,0.6)]"></div>
-                Market Intelligence: Seasonal Demand Analysis
-              </h3>
-              <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-3">Localized Market Opportunity Analysis (2025 Baseline)</p>
-            </div>
-            <div className="flex space-x-10 mt-6 lg:mt-0">
-              <div className="flex items-center space-x-3">
-                <div className="w-4 h-4 rounded-lg bg-slate-200"></div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Demand Index</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-4 h-4 rounded-lg bg-emerald-500"></div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Actual Utilization</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex-1 h-[350px] relative z-10">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={analysis.usageVsDemand} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="service" fontSize={12} axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontWeight: 900 }} />
-                <YAxis domain={[0, 100]} hide />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 30px 60px rgba(0,0,0,0.15)', padding: '24px' }}
-                  cursor={{ fill: '#f8fafc' }}
-                />
-                <Bar dataKey="marketDemand" name="Market Potential" fill="#f1f5f9" radius={[10, 10, 0, 0]} barSize={50} />
-                <Line type="monotone" dataKey="actualUsage" name="Service Usage Rate" stroke="#10b981" strokeWidth={6} dot={{ r: 8, fill: '#10b981', strokeWidth: 4, stroke: '#fff' }} activeDot={{ r: 12, fill: '#10b981' }} animationDuration={2000} />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-slate-100 h-[550px] flex flex-col">
@@ -312,19 +263,9 @@ export const DashboardCharts: React.FC<Props> = ({ data, displayCurrency, conver
             <div>
               <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.4em] flex items-center">
                 <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full mr-5 shadow-[0_0_15px_rgba(79,70,229,0.6)]"></div>
-                Market Intelligence: 9-Month Performance Matrix
+                Market Intelligence: Portfolio Performance Matrix
               </h3>
-              <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-3">Hover periods for high/low efficiency diagnostics</p>
-            </div>
-            <div className="flex space-x-12">
-              <div className="flex items-center space-x-4">
-                <div className="w-5 h-2 rounded-full bg-indigo-500"></div>
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Alpha Revenue</span>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-5 h-2 rounded-full bg-rose-500"></div>
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Overhead Exposure</span>
-              </div>
+              <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-3">Aggregate Operational Data Cycle (excluding non-transactional periods)</p>
             </div>
           </div>
           <div className="flex-1">
